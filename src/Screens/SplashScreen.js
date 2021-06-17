@@ -12,8 +12,8 @@ import * as Animatable from 'react-native-animatable';
 import LinearGradient from 'react-native-linear-gradient';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from '@react-navigation/native';
-import { SCREEN_HEIGHT, LOGO_HEIGHT_POSITION } from "../Constants";
-import Header from './Header'
+import { SCREEN_HEIGHT, LOGO_HEIGHT_POSITION } from "../../Constants";
+import Header from '../Components/Header'
 const SplashScreen = ({navigation}) => {
     const { colors } = useTheme();
 
@@ -29,7 +29,7 @@ const SplashScreen = ({navigation}) => {
             <Animatable.Image 
                 animation="bounceIn"
                 duraton="1500"
-            source={require('../assets/logo.png')}
+            source={require('../Assets/logo.png')}
             style={{...styles.logo}}
             
             />
@@ -41,7 +41,11 @@ const SplashScreen = ({navigation}) => {
             <Text style={[styles.title, {
                 color: colors.text
             }]}>Stay connected with everyone!</Text>
-            <Text style={{...styles.text}}>Sign in with account</Text>
+            <Text style={{...styles.text}}>Already have an account?
+            </Text>
+            <TouchableOpacity
+             onPress={()=>navigation.navigate('SignInScreen')}
+            ><Text style={{...styles.text2}}>Sign in</Text></TouchableOpacity>
             <View style={{...styles.button}}>
             <TouchableOpacity onPress={()=>navigation.navigate('PhoneAuthScreen')}>
                 <LinearGradient
@@ -99,10 +103,16 @@ const styles = StyleSheet.create({
       fontWeight: 'bold',
   },
   text: {
-      color: 'grey',
+      color: 'black',
       marginTop:5,
       fontSize: 15,
   },
+  text2: {
+    color: 'red',
+    marginTop:5,
+    fontSize: 15,
+    
+},
   button: {
       alignItems: 'flex-end',
       marginTop: 20,

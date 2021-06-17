@@ -10,10 +10,11 @@ import {
     TouchableWithoutFeedback,
     KeyboardAvoidingView
 } from 'react-native';
-import SmallHeader from './SmallHeader';
+import SmallHeader from '../Components/SmallHeader';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 const { width, HEIGHT } = Dimensions.get("window")
 import * as Animatable from 'react-native-animatable';
+
 const DismissKeyboard = ({children})=>{
     return(<TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()}>
     {children}
@@ -21,32 +22,21 @@ const DismissKeyboard = ({children})=>{
     
   };
 
-  class  OTPScreen extends Component {
-    
-    constructor(props) {
-        super(props);
-    
-        this.state ={
-            code: '',
-            confirm : null
-            
+  const  OTPScreen =({route,navigation})=>  {
+    const [code, setCode] = useState('');
+    const [confirm, setConfirm] = useState(''); 
+    const  OtpVerify = () => {
+       console.log(route.params.confirm);
+       navigation.navigate('SignUpScreen');
+    }
+    async function confirmCode() {
+        setConfirm(route.params.confirm);
+        try {
+          await confirm.confirm(code);
+        } catch (error) {
+          console.log('Invalid code.');
         }
-    }
-    render(){
-       
-    const  OtpVerify = async () => {
-        //this.state.confirm = route.params;
-       // try {
-        //   let data =  confirm.confirm(number);
-        //   console.log("data", data);
-       // } catch (error) {
-       // console.log('Invalid code.');
-        //ToastAndroid.show('Invalid code.',ToastAndroid.SHORT)
-       // }
-       
-       //if verified 
-       this.props.navigation.navigate('SignInScreen');
-    }
+      }
     const sendCodeAgain = async ()=>
     {
 
@@ -65,15 +55,15 @@ const DismissKeyboard = ({children})=>{
                         placeholder='Enter 6 digit OTP'
                         underlineColorAndroid={'transparent'}
                         keyboardType="number-pad"
-                        onChangeText={(value) => this.setState({code:value})}
+                        onChangeText={(value) => setCode(value)}
                         maxLength={6}
                         autoFocus={true}/>
                     </View>
                     <Animatable.View animation= "bounceIn"style={{...styles.viewButton}}>
                         <TouchableOpacity
-                        onPress={OtpVerify}
-                        disabled={ this.state.code.length == 6 ? false : true}
-                        style={[styles.buttonContinue,{backgroundColor:this.state.code.length == 6 ? '#014961' : 'grey'}]}>
+                        onPress={()=>OtpVerify()}
+                        disabled={ code.length == 6 ? false : true}
+                        style={[styles.buttonContinue,{backgroundColor:code.length == 6 ? '#014961' : 'grey'}]}>
                             <Text style={{...styles.buttonText}}>
                             Continue</Text>
                             <MaterialIcons 
@@ -95,8 +85,8 @@ const DismissKeyboard = ({children})=>{
             </View>
         </DismissKeyboard>
     );
-}
-}
+};
+
 export default OTPScreen ;
 
 const styles = StyleSheet.create({

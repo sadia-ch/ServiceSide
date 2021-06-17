@@ -42,10 +42,10 @@ render(){
             style={{flexDirection:"row",alignItems:"center", paddingLeft:15}} >
                <TouchableOpacity
                onPress={() => this.props.navigation.goBack()}>
-                    <FontAwesome
+                    <FontAwesome5
                     name="angle-left"
                     color="white"
-                    size={25}> </FontAwesome>
+                    size={25}> </FontAwesome5>
                 </TouchableOpacity> 
             <Title style={{color:"white",paddingLeft:20}}>
             {"Settings"}

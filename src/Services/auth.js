@@ -1,0 +1,81 @@
+import auth from '@react-native-firebase/auth';
+import { Alert } from 'react-native';
+import firestore from '@react-native-firebase/firestore';
+
+const createUserInDb = (uid, fullName, email) => {
+    return firestore().collection('providers').doc(uid).set(
+        {
+            uid,
+            fullName,
+            email
+        }
+    )
+}
+
+
+// signup handling
+const signUp = async (fullName, email, password) => {
+    try {
+        const cred = await auth().createUserWithEmailAndPassword(email, password);
+        const { uid } = cred.user;
+
+        auth().currentUser.updateProfile({
+            displayName: fullName
+        });
+        const uid_1 = uid;
+        return createUserInDb(uid_1, fullName, email);
+    } catch (err) {
+        return Alert.alert(err.code, err.message);
+    }
+}
+
+const signIn = async (email, password) => {
+    if(!email || !password){
+        Alert.alert('Error', 'Please enter all fields')
+    }
+
+    try {
+        await auth().signInWithEmailAndPassword(email, password);
+    } catch (err) {
+        return Alert.alert(err.code, err.message);
+    }
+}
+
+const forgetPassword = (email) => {
+    if(!email){
+        Alert.alert('Error', 'Please enter email')
+    }
+
+    return auth().sendPasswordResetEmail(email)
+}
+
+const signOut = () => {
+    return auth().signOut()
+}
+
+const sendOtp = (number) => {
+    if(!number){
+        Alert.alert('Error', 'Please Enter number')
+    }
+
+    return auth().signInWithPhoneNumber(number)
+}
+
+const confirmCode = (state, code) => {
+    return state.confirm(code)
+    .then(() => {})
+    .catch(err => Alert.alert(err.code, err.message))
+}
+
+
+const Auth = {
+    signUp,
+    signIn,
+    forgetPassword,
+    signOut,
+    sendOtp,
+    confirmCode,
+
+}
+
+export default Auth

@@ -1,6 +1,6 @@
 import React from 'react';
 import {View,StyleSheet,Dimensions} from 'react-native';
-import Wavyheader from './Components/Wavyheader';
+import Wavyheader from './Wavyheader';
 const Header = () => {
   return(
     <View>

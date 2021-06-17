@@ -1,18 +1,20 @@
-import React, {useState,props,ref, Component} from 'react';
+import React, {useState,props,ref, Component, } from 'react';
 import { 
     View, 
     Text, 
     StyleSheet ,
     TouchableWithoutFeedback,
     Keyboard, 
-    KeyboardAvoidingView,
+    KeyboardAvoidingView
     
 } from 'react-native';
+import auth from '@react-native-firebase/auth';
 import {TouchableOpacity, TextInput} from 'react-native-gesture-handler';
-import SmallHeader from './SmallHeader';
+import SmallHeader from '../Components/SmallHeader';
 import * as Animatable from 'react-native-animatable';
-import { SCREEN_HEIGHT, LOGO_HEIGHT_POSITION,TEXT_INPUT_HEIGHT } from "../Constants";
+import { SCREEN_HEIGHT } from "../../Constants";
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
 
 const DismissKeyboard = ({children})=>{
   return(<TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()}>
@@ -22,44 +24,22 @@ const DismissKeyboard = ({children})=>{
 };
 
 
+const PhoneAuthScreen = ({navigation}) => {
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [confirm, setConfirm] = useState('');
 
-class  PhoneAuthScreen extends Component {
-
-
-    signInWithPhoneNumber = async ()=> {
-      //try {
-      //  const confirmation = await auth().signInWithPhoneNumber('+92'+this.state.phoneNumber);
-      //  setConfirm(confirmation);
-      this.props.navigation.navigate('OTPScreen',{ confirm: this.state.confirm})
-      //} catch (error) {
-      //  alert(error);
-      //}
+   const asignInWithPhoneNumber = ()=> {
+      navigation.navigate('OTPScreen',{ confirm: 1})
   }
-
+  async function signInWithPhoneNumber() {
+    
+    const confirmation = await auth().signInWithPhoneNumber('+92'+phoneNumber);
+    setConfirm(confirmation);
+    console.log(confirm);
+    navigation.navigate('OTPScreen',{ confirm: confirm})
+  }
   
-  focusedInput = () => { 
-    this.inputContainer.setNativeProps({
-      style: { borderBottomColor: 'blue' }
-    }) 
-  }
 
-  blurredInput = () => { 
-    this.inputContainer.setNativeProps({
-      style: { borderBottomColor: 'red' }
-    }) 
-  }
-  constructor(props) {
-    super(props);
-
-    this.state ={
-        phoneNumber: '',
-        confirm : null
-        
-    }
-}
-
-      
-    render (){  
       return(
 
     <DismissKeyboard>
@@ -77,19 +57,18 @@ class  PhoneAuthScreen extends Component {
 
           <View style={{...styles.inputContainer}, {borderBottomColor:'black'}}>
               <View style={{...styles.openDialogView}}
-              ref={c => { this.inputContainer = c}} >
+               >
                 <Text style={{fontSize:16,}} >
                   +92  
                 </Text>
                 <TextInput 
-                  onChangeText = {(text) => this.setState({phoneNumber:text})}
+                  onChangeText = {(text) => setPhoneNumber(text)}
                   style={styles.phoneInput}
                   placeholder = "123 456 7890"
                   maxLength={10}
                   autoFocus={true}
                   keyboardType='number-pad'
-                  onFocus={this.focusedInput}
-                  onBlur={this.blurredInput}>
+                >
               </TextInput>
               </View>     
           </View>
@@ -97,9 +76,9 @@ class  PhoneAuthScreen extends Component {
           </View>
           <Animatable.View animation= "bounceIn" style={{...styles.viewButton}}>
               <TouchableOpacity  
-                onPress={this.signInWithPhoneNumber}
-                disabled={this.state.phoneNumber.length == 10 ?false :true}>
-                  <View  style={[styles.btnContinue, {backgroundColor:this.state.phoneNumber.length == 10 ? '#014961' : 'grey'}]} >
+                onPress={()=>asignInWithPhoneNumber()}
+                disabled={phoneNumber.length == 10 ?false :true}>
+                  <View  style={[styles.btnContinue, {backgroundColor:phoneNumber.length == 10 ? '#014961' : 'grey'}]} >
                     <Text style={{...styles.buttonText}}>
                       Continue
                     </Text>
@@ -116,8 +95,8 @@ class  PhoneAuthScreen extends Component {
     </DismissKeyboard>
 
     );
-  }
-}
+  
+};
 
 export  default PhoneAuthScreen;
 const height_logo = SCREEN_HEIGHT * 0.30;

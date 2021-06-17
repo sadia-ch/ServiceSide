@@ -9,52 +9,116 @@ import {
     Platform,
     StyleSheet,
     ScrollView,
-    StatusBar
+    StatusBar,
+    Alert
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import LinearGradient from 'react-native-linear-gradient';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
-import ExtraSmallHeader from './ExtraSmallHeader';
-const SignInScreen = ({navigation}) => {
+import ExtraSmallHeader from '../Components/ExtraSmallHeader';
+import {Auth} from '../Services';
+
+const SignUpScreen = ({navigation}) => {
 
     const [data, setData] = React.useState({
         username: '',
         password: '',
+        email: '',
         confirm_password: '',
+        check_EmailImputChange: false,
+        isValidUser: true,
+        isValidPassword: true,
+        isValidConfirmPassword: true,
         check_textInputChange: false,
         secureTextEntry: true,
         confirm_secureTextEntry: true,
+        check_username:true
     });
 
     const textInputChange = (val) => {
-//        if( val.length !== 0 ) {
-//            setData({
-//                ...data,
-//                username: val,
-//                check_textInputChange: true
-//            });
-//        } else {
-//            setData({
-//                ...data,
-//                username: val,
-//                check_textInputChange: false
-//            });
-//        }
+        if( val.trim().length !== 0 ) {
+            setData({
+                ...data,
+                username: val,
+                check_textInputChange: true,
+                check_username:true,
+            });
+        } else {
+            setData({
+                ...data,
+                username: val,
+                check_textInputChange: false,
+                check_username:false
+            });
+        }
+    }
+
+    const EmailInputChange = (val) => {
+        if( val.length !== 0 ) {
+            setData({
+                ...data,
+                email: val,
+                isValidUser: true
+            });
+        } else {
+            setData({
+                ...data,
+                email: val,
+                isValidUser: false
+            });
+        }
+    }
+    const handleValidUser = (val) => {
+        var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        if (re.test(val) === true) {
+            setData({
+                ...data,
+                email: val,
+                check_EmailImputChange: true,
+                isValidUser: true
+            });
+        }
+        else {
+            setData({
+                ...data,
+                email: val,
+                check_EmailImputChange: false,
+                isValidUser: false
+            });
+        }
     }
 
     const handlePasswordChange = (val) => {
-//        setData({
-//            ...data,
-//            password: val
-//        });
+        if( val.length !== 0 ) {
+            setData({
+                ...data,
+                password: val,
+                isValidPassword: true
+            });
+        } else {
+            setData({
+                ...data,
+                password: val,
+                isValidPassword: false
+            });
+        }
     }
 
     const handleConfirmPasswordChange = (val) => {
-//        setData({
-//            ...data,
-//            confirm_password: val
-//        });
+        if( val.length !== 0 ) {
+            setData({
+                ...data,
+                confirm_password: val,
+                isValidConfirmPassword: true
+            });
+        } else {
+            setData({
+                ...data,
+                confirm_password: val,
+                isValidConfirmPassword: false
+            });
+        }
     }
 
     const updateSecureTextEntry = () => {
@@ -72,8 +136,20 @@ const SignInScreen = ({navigation}) => {
     }
     const saveUser =() =>
     {
-        //do something auth etc
-        navigation.navigate('TabBar')
+        if(data.username.length === 0 || data.email.length === 0 || data.password.length === 0 || data.confirm_password === 0)
+        {
+            Alert.alert('Error', 'Please enter all fields');
+            return ;
+        }
+        else if((data.password === data.confirm_password) && data.isValidUser)
+        {
+            Auth.signUp(data.username, data.email, data.password);
+            return ;
+        }
+        else{
+            Alert.alert('Error', "Password and confirm password does not match");
+            return ;
+        }
     }
 
     return (
@@ -100,6 +176,7 @@ const SignInScreen = ({navigation}) => {
                     style={styles.textInput}
                     autoCapitalize="none"
                     onChangeText={(val) => textInputChange(val)}
+                    onEndEditing={(e)=> textInputChange(e.nativeEvent.text)}
                 />
                 {data.check_textInputChange ? 
                 <Animatable.View
@@ -112,7 +189,13 @@ const SignInScreen = ({navigation}) => {
                     />
                 </Animatable.View>
                 : null}
+                
             </View>
+            { data.check_username ? null : 
+            <Animatable.View animation="fadeInLeft" duration={500}>
+            <Text style={styles.errorMsg}>empty field.</Text>
+            </Animatable.View>
+            }
 
             <Text style={[styles.text_footer, {
                 marginTop: 35
@@ -127,9 +210,10 @@ const SignInScreen = ({navigation}) => {
                     placeholder="Your Email"
                     style={styles.textInput}
                     autoCapitalize="none"
-                    onChangeText={(val) => textInputChange(val)}
+                    onChangeText={(val) => EmailInputChange(val)}
+                    onEndEditing = {(e) => handleValidUser(e.nativeEvent.text)}
                 />
-                {data.check_textInputChange ? 
+                {data.check_EmailImputChange ? 
                 <Animatable.View
                     animation="bounceIn"
                 >
@@ -141,6 +225,11 @@ const SignInScreen = ({navigation}) => {
                 </Animatable.View>
                 : null}
             </View>
+            { data.isValidUser ? null : 
+            <Animatable.View animation="fadeInLeft" duration={500}>
+            <Text style={styles.errorMsg}>wrong email.</Text>
+            </Animatable.View>
+            }
 
             <Text style={[styles.text_footer, {
                 marginTop: 35
@@ -157,6 +246,7 @@ const SignInScreen = ({navigation}) => {
                     style={styles.textInput}
                     autoCapitalize="none"
                     onChangeText={(val) => handlePasswordChange(val)}
+                    onEndEditing={(e) => handlePasswordChange(e.nativeEvent.text)}
                 />
                 <TouchableOpacity
                     onPress={updateSecureTextEntry}
@@ -176,7 +266,12 @@ const SignInScreen = ({navigation}) => {
                     }
                 </TouchableOpacity>
             </View>
-
+            { data.isValidPassword ? null : 
+            <Animatable.View animation="fadeInLeft" duration={500}>
+            <Text style={styles.errorMsg}>empty field</Text>
+            </Animatable.View>
+            }
+            
             <Text style={[styles.text_footer, {
                 marginTop: 35
             }]}>Confirm Password</Text>
@@ -192,6 +287,7 @@ const SignInScreen = ({navigation}) => {
                     style={styles.textInput}
                     autoCapitalize="none"
                     onChangeText={(val) => handleConfirmPasswordChange(val)}
+                    onEndEditing={(e) => handleConfirmPasswordChange(e.nativeEvent.text)}
                 />
                 <TouchableOpacity
                     onPress={updateConfirmSecureTextEntry}
@@ -211,6 +307,11 @@ const SignInScreen = ({navigation}) => {
                     }
                 </TouchableOpacity>
             </View>
+            { data.isValidConfirmPassword ? null : 
+            <Animatable.View animation="fadeInLeft" duration={500}>
+            <Text style={styles.errorMsg}>empty field</Text>
+            </Animatable.View>
+            }
             <View style={styles.textPrivate}>
                 <Text style={styles.color_textPrivate}>
                     By signing up you agree to our
@@ -222,7 +323,7 @@ const SignInScreen = ({navigation}) => {
             <View style={styles.button}>
                 <TouchableOpacity
                     style={styles.signIn}
-                    onPress={saveUser}
+                    onPress={()=>saveUser()}
                 >
                 <LinearGradient
                     colors={['#00929F', '#014961']}
@@ -234,16 +335,7 @@ const SignInScreen = ({navigation}) => {
                 </LinearGradient>
                 </TouchableOpacity>
 
-                <TouchableOpacity
-                    onPress={() => navigation.goBack()}
-                    style={[styles.signIn, {
-                        marginTop: 15
-                    }]}
-                >
-                    <Text style={[styles.textSign, {
-                        color: '#014961'
-                    }]}>Sign In</Text>
-                </TouchableOpacity>
+                
             </View>
             </ScrollView>
         </Animatable.View>
@@ -251,7 +343,7 @@ const SignInScreen = ({navigation}) => {
     );
 };
 
-export default SignInScreen;
+export default SignUpScreen;
 
 const styles = StyleSheet.create({
     container: {
@@ -315,6 +407,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         marginTop: 20
+    },
+    errorMsg: {
+        color: '#FF0000',
+        fontSize: 14,
     },
     color_textPrivate: {
         color: 'grey'

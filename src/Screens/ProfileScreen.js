@@ -1,12 +1,46 @@
-import React from 'react';
+import React,{useEffect, useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity,StatusBar } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import {Auth} from '../Services';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 const ProfileScreen =({navigation})=>{
+    const [data, setData] = useState({
+        username: '',
+        email: '',
+       
+    });
+
+    const getUser = async () => {
+        const {uid} = auth().currentUser;
+        try {
+          const documentSnapshot = await firestore()
+            .collection('providers')
+            .doc(uid)
+            .get();
+    
+          const userData = documentSnapshot.data();
+         
+        setData({
+            ...data,
+            username: userData.fullName,
+            email: userData.email,
+            
+        });
+        } catch {
+          //do whatever
+        }
+      };
+    useEffect(() => {
+        getUser();
+        
+      });
+
 return(
     <View style={{...styles.container}}>
         <StatusBar backgroundColor="darkgray" barStyle="light-content"/>
       <View style={{...styles.nameView}}>
-          <Text style={{...styles.nameText}}>FirstName L.</Text>
+          <Text style={{...styles.nameText}}>{data.username}</Text>
       </View>
       <View style={{...styles.secondView}}>
           <View style={{...styles.profileView}}>
@@ -18,7 +52,7 @@ return(
                 />
                 <Text style={{paddingLeft:20, fontSize:15, fontWeight:"bold"}}>
                     moblie number
-                    <Text style={{fontWeight:"normal"}}>{"\n"}email</Text>
+                    <Text style={{fontWeight:"normal"}}>{"\n"}{data.email}</Text>
                 </Text>
 
             <TouchableOpacity
@@ -34,7 +68,10 @@ return(
                 </FontAwesome>
             </TouchableOpacity>
           </View>
-          <View style={{...styles.signOutView}}>
+          
+          <View>
+          <TouchableOpacity  style={{...styles.signOutView}}
+          onPress={() => Auth.signOut()}>
           <FontAwesome 
                     name="sign-out"
                     color="black"
@@ -44,16 +81,8 @@ return(
           <Text style={{paddingLeft:20, fontSize:15}}>
                 Sign Out    
            </Text>
-           <TouchableOpacity
-             >
-               
-                <FontAwesome
-                name="angle-right"
-                color="gray"
-                size={19}
-                style={{position:"absolute",left:227 }}>
-                </FontAwesome>
-            </TouchableOpacity>
+           </TouchableOpacity>
+           
           </View>
       </View>
       <View style={{...styles.thirdView}}>
