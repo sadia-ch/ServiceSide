@@ -66,7 +66,28 @@ const confirmCode = (state, code) => {
     .then(() => {})
     .catch(err => Alert.alert(err.code, err.message))
 }
+const acceptRequest =async () => {
+    
+        try {
+            const snap = await firestore()
+                .collection("requests")
+                .get();
+            const products = [];
+            snap.forEach(
+                product => {
+                    let obj = {['latitude']:product.data().data.google.latitude,
+                    ['longitude']:product.data().data.google.longitude,
+                    ['requestid']: product.data().uid}
+                    products.push(obj);});
+           
+            console.log(products);
+            return products;
 
+        } catch (err) {
+            return err;
+        }
+    
+}
 
 const Auth = {
     signUp,
@@ -75,6 +96,7 @@ const Auth = {
     signOut,
     sendOtp,
     confirmCode,
+    acceptRequest
 
 }
 
